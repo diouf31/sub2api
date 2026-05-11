@@ -1,0 +1,69 @@
+server:
+  host: 0.0.0.0
+  port: 8080
+  mode: release
+  frontend_url: ''
+run_mode: standard
+timezone: UTC
+database:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: ''
+  dbname: sub2api
+  sslmode: prefer
+  max_open_conns: 256
+  max_idle_conns: 128
+  conn_max_lifetime_minutes: 30
+  conn_max_idle_time_minutes: 5
+redis:
+  host: localhost
+  port: 6379
+  password: ''
+  db: 0
+  pool_size: 1024
+  min_idle_conns: 128
+  enable_tls: false
+jwt:
+  secret: ''
+  expire_hour: 24
+totp:
+  encryption_key: ''
+default:
+  admin_email: admin@example.com
+  admin_password: admin123
+  user_concurrency: 5
+  user_balance: 0
+  api_key_prefix: sk-
+  rate_multiplier: 1.0
+log:
+  level: info
+  format: console
+  service_name: sub2api
+  env: production
+  caller: true
+  stacktrace_level: error
+  output:
+    to_stdout: true
+    to_file: true
+    file_path: ''
+  rotation:
+    max_size_mb: 100
+    max_backups: 10
+    max_age_days: 7
+    compress: true
+    local_time: true
+gateway:
+  response_header_timeout: 600
+  max_body_size: 268435456
+  stream_data_interval_timeout: 180
+  stream_keepalive_interval: 10
+  tls_fingerprint:
+    enabled: true
+security:
+  url_allowlist:
+    enabled: false
+    allow_private_hosts: true
+    allow_insecure_http: true
+rate_limit:
+  overload_cooldown_minutes: 10

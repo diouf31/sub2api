@@ -1,0 +1,210 @@
+============================================================
+  Sub2API Windows 安装部署教程
+============================================================
+
+本教程指导你在 Windows 服务器上完整部署 Sub2API，包含：
+  - PostgreSQL 数据库安装
+  - Redis 缓存安装
+  - Sub2API 程序下载
+  - 使用 GUI 管理面板配置并启动
+
+============================================================
+一、安装 PostgreSQL 15+
+============================================================
+
+1. 下载安装包
+   地址: https://www.postgresql.org/download/windows/
+   点击 "Download the installer" → 选择最新 15.x 或 16.x 版本 (Windows x86-64)
+
+2. 运行安装程序
+   - 安装目录: 默认即可
+   - 选择组件: 全部勾选 (PostgreSQL Server, pgAdmin, Command Line Tools)
+   - 数据目录: 默认即可
+   - 超级用户密码: ★ 设置并牢记此密码，后面要用 ★
+   - 端口: 保持默认 5432
+   - 区域设置: Default locale
+   - 点击 Next 完成安装
+
+3. 创建 sub2api 数据库
+   方法A - 使用 pgAdmin (图形界面):
+     a) 开始菜单 → pgAdmin 4
+     b) 左侧展开 Servers → PostgreSQL → 输入你设的密码
+     c) 右键 Databases → Create → Database
+     d) Database 名称输入: sub2api
+     e) 点击 Save
+
+   方法B - 使用命令行:
+     a) 打开 CMD 或 PowerShell
+     b) 执行以下命令 (根据安装路径调整):
+
+        "C:\Program Files\PostgreSQL\16\bin\psql.exe" -U postgres
+        (输入你设置的密码)
+        CREATE DATABASE sub2api;
+        \q
+
+4. 验证安装
+   打开 PowerShell 执行:
+     Test-NetConnection -ComputerName localhost -Port 5432
+   应显示 TcpTestSucceeded : True
+
+============================================================
+二、安装 Redis 7+
+============================================================
+
+Windows 上推荐两种方式 (任选其一):
+
+--- 方式A: tporadowski/redis (推荐，免费) ---
+
+1. 下载地址: https://github.com/tporadowski/redis/releases
+   下载最新的 Redis-x64-xxx.msi 安装包
+
+2. 运行安装程序
+   - 勾选 "Add the Redis installation folder to the PATH"
+   - 勾选 "Add Windows Firewall rule" (如需远程访问)
+   - 端口: 保持默认 6379
+   - 内存限制: 可设置 256MB 或更多
+   - 安装完成后 Redis 服务会自动启动
+
+--- 方式B: Memurai (Redis 兼容，免费社区版) ---
+
+1. 下载地址: https://www.memurai.com/get-memurai
+2. 安装后自动以 Windows 服务运行
+
+--- 验证安装 ---
+
+打开 PowerShell 执行:
+  Test-NetConnection -ComputerName localhost -Port 6379
+应显示 TcpTestSucceeded : True
+
+或者用 redis-cli:
+  redis-cli ping
+应返回 PONG
+
+============================================================
+三、下载 Sub2API
+============================================================
+
+1. 访问 GitHub Releases:
+   https://github.com/Wei-Shaw/sub2api/releases
+
+2. 找到最新版本，下载:
+   sub2api_xxx_windows_amd64.zip
+
+3. 解压到项目目录，确保 sub2api.exe 位于:
+   D:\项目\python\sub2api\sub2api.exe
+   (与 gui_launcher.py 同目录)
+
+============================================================
+四、安装 Python 依赖
+============================================================
+
+打开 PowerShell，进入项目目录执行:
+
+  cd D:\项目\python\sub2api
+  pip install pyyaml
+
+============================================================
+五、使用 GUI 管理面板
+============================================================
+
+1. 启动 GUI
+   双击运行或命令行执行:
+     python gui_launcher.py
+
+2. 配置数据库 (数据库 Tab)
+   - 主机地址: localhost
+   - 端口: 5432
+   - 用户名: postgres
+   - 密码: ★ 填入你安装 PostgreSQL 时设置的密码 ★
+   - 数据库名: sub2api
+   - SSL 模式: prefer (或 disable，本地连接建议 disable)
+
+3. 配置 Redis (Redis Tab)
+   - 主机地址: localhost
+   - 端口: 6379
+   - 密码: 留空 (除非你在 Redis 中配置了密码)
+
+4. 配置安全认证 (安全认证 Tab)
+   - 点击 "随机生成 JWT Secret" 按钮
+   - 点击 "随机生成 TOTP Key" 按钮
+   ★ 生成后请记录这些密钥，重新部署时需要使用相同的值 ★
+
+5. 配置管理员 (默认设置 Tab)
+   - 管理员邮箱: 设置你的邮箱
+   - 管理员密码: 设置一个强密码 (首次运行时自动创建)
+
+6. 确认服务器设置 (服务器 Tab)
+   - 监听端口: 8080 (或你想要的端口)
+   - 时区: UTC (Windows 必须用 UTC)
+
+7. 保存并启动
+   a) 点击工具栏 "保存配置"
+   b) 确认程序路径指向 sub2api.exe
+   c) 点击 "启动服务"
+   d) 切换到 "运行日志" Tab 查看启动状态
+
+8. 访问管理后台
+   浏览器打开: http://localhost:8080
+   使用你设置的管理员邮箱和密码登录
+
+============================================================
+六、设置开机自启 (可选)
+============================================================
+
+方法: 使用 Windows 任务计划程序
+
+1. 打开 "任务计划程序" (taskschd.msc)
+2. 创建基本任务:
+   - 名称: Sub2API
+   - 触发器: 计算机启动时
+   - 操作: 启动程序
+   - 程序: D:\项目\python\sub2api\sub2api.exe
+   - 起始于: D:\项目\python\sub2api
+3. 勾选 "使用最高权限运行"
+4. 在条件中取消 "只有在计算机使用交流电源时才启动"
+
+或者使用 NSSM 注册为 Windows 服务:
+  1. 下载 NSSM: https://nssm.cc/download
+  2. 管理员 PowerShell 执行:
+     nssm install Sub2API "D:\项目\python\sub2api\sub2api.exe"
+     nssm set Sub2API AppDirectory "D:\项目\python\sub2api"
+     nssm set Sub2API AppEnvironmentExtra "DATA_DIR=D:\项目\python\sub2api" "TZ=UTC"
+     nssm start Sub2API
+
+============================================================
+七、防火墙配置 (如需外部访问)
+============================================================
+
+管理员 PowerShell 执行:
+
+  New-NetFirewallRule -DisplayName "Sub2API" -Direction Inbound -Port 8080 -Protocol TCP -Action Allow
+
+============================================================
+八、常见问题
+============================================================
+
+Q: 时区错误 "unknown time zone Asia/Shanghai"
+A: 确保 config.yaml 中 timezone 设为 UTC，或设置环境变量 TZ=UTC
+
+Q: 无法连接 PostgreSQL
+A: 检查 PostgreSQL 服务是否启动:
+   Get-Service postgresql*
+   如未启动: Start-Service postgresql-x64-16
+
+Q: 无法连接 Redis
+A: 检查 Redis 服务是否启动:
+   Get-Service redis
+   如未启动: Start-Service redis
+
+Q: 端口被占用
+A: 查看端口占用: netstat -ano | findstr :8080
+   修改 GUI 中的监听端口为其他值
+
+Q: 忘记管理员密码
+A: 删除数据库重新初始化，或直接修改数据库中的密码
+
+============================================================
+参考链接:
+  GitHub: https://github.com/Wei-Shaw/sub2api
+  文档:   https://github.com/Wei-Shaw/sub2api/blob/main/README_CN.md
+============================================================
