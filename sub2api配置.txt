@@ -1,0 +1,6 @@
+curl -sSL https://raw.githubusercontent.com/benmao5201314/sub2api-installer/main/sub2api_manager.sh -o sub2api.sh && chmod +x sub2api.sh && sudo ./sub2api.sh
+公网访问: http://8.219.118.131:5002
+数据库名称: sub2api_db
+数据库用户: sub2api_user
+数据库密码: fibF5aKVwHMI3WWT
+Redis 地址: localhost:6379 (无密码)
