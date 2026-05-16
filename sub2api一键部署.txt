@@ -1,0 +1,2 @@
+curl -sSL https://raw.githubusercontent.com/benmao5201314/sub2api-installer/main/sub2api_manager.sh -o sub2api.sh && chmod +x sub2api.sh && sudo ./sub2api.sh
+https://github.com/benmao5201314/sub2api-installer
